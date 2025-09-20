@@ -9,29 +9,74 @@ sorted(variables) ordena el conjunto y lo convierte en una lista.
 len() devuelve la longitud (cuántos elementos hay) en listas, cadenas, conjuntos, etc
 """
 
-expresion = input("Ingresa una función matemática: ")
+import tkinter as tk
+from tkinter import ttk, messagebox
 
-variables = set()
-operaciones = 0
+def analizar():
+    expresion = entrada.get()
 
-for i, c in enumerate(expresion):
-    if c.isalpha():
-        variables.add(c)
+    if not expresion.strip():
+        messagebox.showwarning("Error", "Por favor ingresa una función matemática.")
+        return
 
-    elif c in "+-*/^":
-        operaciones += 1
+    variables = set()
+    operaciones = 0
 
-    # Detectar multiplicación implícita
-    if i < len(expresion) - 1:  # mientras no sea el último carácter
-        siguiente = expresion[i+1]
-        # caso: número + letra  (ej: 5x)
-        if c.isdigit() and siguiente.isalpha():
-            operaciones += 1
-        # caso: letra + letra (ej: xy)
-        elif c.isalpha() and siguiente.isalpha():
+    for i, c in enumerate(expresion):
+        if c.isalpha():
+            variables.add(c)
+
+        elif c in "+-*/^":
             operaciones += 1
 
-print("\n--- RESULTADOS ---")
-print("Variables encontradas:", ", ".join(sorted(variables)))
-print("Número de variables:", len(variables))
-print("Número de operaciones registradas:", operaciones)
+        # Detectar multiplicación implícita
+        if i < len(expresion) - 1:  
+            siguiente = expresion[i+1]
+            if c.isdigit() and siguiente.isalpha():
+                operaciones += 1
+            elif c.isalpha() and siguiente.isalpha():
+                operaciones += 1
+
+    resultado.set(
+        f"Variables encontradas: {', '.join(sorted(variables))}\n"
+        f"Número de variables: {len(variables)}\n"
+        f"Número de operaciones: {operaciones}"
+    )
+
+# Crear ventana
+ventana = tk.Tk()
+ventana.title("Analizador de Funciones Matemáticas")
+ventana.geometry("400x300")
+ventana.configure(bg="#f4f6f7")
+
+# Estilos
+estilo = ttk.Style()
+estilo.configure("TButton", font=("Arial", 12), padding=6)
+estilo.configure("TLabel", font=("Arial", 12))
+
+# Etiqueta de título
+titulo = tk.Label(
+    ventana, text="Analizador de Funciones", 
+    font=("Arial", 16, "bold"), bg="#f4f6f7", fg="#2c3e50"
+)
+titulo.pack(pady=10)
+
+# Entrada de texto
+entrada = ttk.Entry(ventana, font=("Consolas", 14))
+entrada.pack(pady=10, ipadx=20, ipady=5)
+
+# Botón
+btn = ttk.Button(ventana, text="Analizar", command=analizar)
+btn.pack(pady=10)
+
+# Resultado
+resultado = tk.StringVar()
+label_resultado = tk.Label(
+    ventana, textvariable=resultado, 
+    font=("Consolas", 12), bg="#ecf0f1", fg="#2c3e50", 
+    relief="groove", justify="left", anchor="w"
+)
+label_resultado.pack(fill="both", expand=True, padx=20, pady=10)
+
+# Iniciar
+ventana.mainloop()
